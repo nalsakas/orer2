@@ -1,2 +1,2 @@
 # orer2
-This project is an attemp to create train orer graphs using d3js in front end and  node/mysql at back end.
+This project is an attemp to create train orer graphs using d3js in front end and  node/mysql at back end. Vuejs used in client side and Express is used in server side. 
