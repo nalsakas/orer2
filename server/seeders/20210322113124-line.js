@@ -7,8 +7,12 @@ module.exports = {
       [
         {
           name: 'Mersin-Adana',
-          createdAt: new Date(),
-          updatedAt: new Date()
+          createdAt: new Date(
+            new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000
+          ),
+          updatedAt: new Date(
+            new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000
+          )
         }
       ],
       {}

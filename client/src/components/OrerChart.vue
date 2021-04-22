@@ -1,9 +1,27 @@
 <template>
   <div class="toolbar">
-    <button class="btn_offsets" @click.prevent="offsets">Offsets...</button>
+    <button class="btn_offsets" @click.prevent="offsets">Ofsetler...</button>
   </div>
-  <div class="offsets"></div>
-  <div ref="svg"></div>
+  <div v-if="line" ref="offsets" class="offsets hidden">
+    <form action="" @submit.prevent>
+      <div
+        v-for="ls in line.lineStations"
+        :key="ls.station.id"
+        class="form-group"
+      >
+        <label>
+          {{ ls.station.name }}
+          <input
+            v-model.number="ls.offset"
+            type="number"
+            min="-999"
+            max="999"
+          />
+        </label>
+      </div>
+    </form>
+  </div>
+  <div ref="svg" class="svg"></div>
 </template>
 
 <script>
@@ -27,15 +45,21 @@
       }
     },
     watch: {
-      totalHeight() {
-        _.debounce(this.plot, 1000)()
-      },
-      totalWidth() {
-        _.debounce(this.plot, 1000)()
+      totalHeight: _.debounce(function (value) {
+        this.plot()
+      }, 2000),
+      totalWidth: _.debounce(function (value) {
+        this.plot()
+      }, 2000),
+      line: {
+        handler: _.debounce(function (value) {
+          this.plot()
+        }, 2000),
+        deep: true
       }
     },
     async mounted() {
-      await this.resizeHandler()
+      //await this.resizeHandler()
       await this.loadData()
       await this.plot()
     },
@@ -46,6 +70,9 @@
           this.totalHeight = window.innerHeight - 200
         })
       },
+      offsets() {
+        this.$refs.offsets.classList.toggle('hidden')
+      },
       async loadData() {
         this.line = await getLineById(this.lineId)
         this.orers = await getOrers()
@@ -53,6 +80,7 @@
       plot() {
         const line = this.line
         const orers = this.orers
+
         const margin = {
           left: 400,
           right: 50,
@@ -208,18 +236,16 @@
           .attr('x', 20)
           .attr('y', 10)
           .attr('font-weight', 800)
-          .attr('font-size', 16)
 
         // Title
         gTitle
           .append('text')
           .text(`${line.name} Hat Kesimi`)
-          .attr('x', (d) => this.totalWidth / 2)
-          .attr('y', 10)
-          .attr('dy', '1.2em')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('dy', '-4em')
           .attr('text-anchor', 'start')
           .attr('font-weight', 800)
-          .attr('font-size', 16)
 
         // Create GridX
         gGridX
@@ -258,10 +284,10 @@
           .attr('x1', -10)
           .attr('x2', width)
           .attr('y1', (d, i) => {
-            return scaleY(d.km) + d.offset
+            return scaleY(d.km) + parseInt(d.offset)
           })
           .attr('y2', (d, i) => {
-            return scaleY(d.km) + d.offset
+            return scaleY(d.km) + parseInt(d.offset)
           })
           .attr('stroke', 'red')
           .attr('stroke-width', 1)
@@ -314,7 +340,7 @@
           })
           .attr('x', 0)
           .attr('y', (d, i) => {
-            return scaleY(d.km) + d.offset
+            return scaleY(d.km) + parseInt(d.offset)
           })
           .attr('dy', 5)
           .attr('dx', 0)
@@ -336,7 +362,7 @@
             if (i !== line.lineStations.length - 1) {
               return (
                 scaleY(line.lineStations[i].km) +
-                line.lineStations[i].offset +
+                parseInt(line.lineStations[i].offset) +
                 (scaleY(line.lineStations[i + 1].km) -
                   scaleY(line.lineStations[i].km)) /
                   2
@@ -358,7 +384,7 @@
           })
           .attr('x', 0)
           .attr('y', (d, i) => {
-            return scaleY(d.km) + d.offset
+            return scaleY(d.km) + parseInt(d.offset)
           })
           .attr('dy', 5)
           .attr('dx', 0)
@@ -368,7 +394,7 @@
         const altitudeAreaGenerator = d3
           .area()
           .x((d) => {
-            return scaleAltitudeX(d.km) + d.offset
+            return scaleAltitudeX(d.km) + parseInt(d.offset)
           })
           .y0((d) => {
             return scaleAltitudeY(0)
@@ -393,9 +419,12 @@
             if (i == 0 && i == arr.length) {
               return
             }
-            path.moveTo(scaleAltitudeX(ls.km) + ls.offset, scaleAltitudeY(0))
+            path.moveTo(
+              scaleAltitudeX(ls.km) + parseInt(ls.offset),
+              scaleAltitudeY(0)
+            )
             path.lineTo(
-              scaleAltitudeX(ls.km) + ls.offset,
+              scaleAltitudeX(ls.km) + parseInt(ls.offset),
               scaleAltitudeY(ls.station.altitude)
             )
           })
@@ -421,7 +450,7 @@
             return d.station.altitude
           })
           .attr('x', (d) => {
-            return scaleAltitudeX(d.km) + d.offset
+            return scaleAltitudeX(d.km) + parseInt(d.offset)
           })
           .attr('y', (d) => {
             return 50
@@ -539,7 +568,7 @@
               (ls) => ls.stationId == d.stationId
             )
             if (lineStation) {
-              y = scaleY(d.km) + lineStation.offset
+              y = scaleY(d.km) + parseInt(lineStation.offset)
             }
             return y
           })
@@ -589,14 +618,14 @@
               (ls) => ls.stationId == d.stationId
             )
             if (lineStation) {
-              y = scaleY(d.km) + lineStation.offset
+              y = scaleY(d.km) + parseInt(lineStation.offset)
             }
             return y
           })
           .attr('dx', 5)
           .attr('dy', 4)
           .attr('text-anchor', 'start')
-          .attr('font-size', 10)
+          //.attr('font-size', 10)
           .attr('font-weight', 400)
           .attr('class', 'minutes')
 
@@ -621,7 +650,7 @@
                 if (lineStation) {
                   let arrival = splitHoursMinutes(os.arrival)
                   let x = scaleX(new Date(2000, 0, 1, +arrival[0], +arrival[1]))
-                  let y = scaleY(os.km) + lineStation.offset
+                  let y = scaleY(os.km) + parseInt(lineStation.offset)
                   path.moveTo(x, y)
                 }
               } else if (os.departure !== null) {
@@ -633,7 +662,7 @@
                   let x = scaleX(
                     new Date(2000, 0, 1, +departure[0], +departure[1])
                   )
-                  let y = scaleY(os.km) + lineStation.offset
+                  let y = scaleY(os.km) + parseInt(lineStation.offset)
                   path.moveTo(x, y)
                 }
               }
@@ -646,7 +675,7 @@
               if (lineStation) {
                 let arrival = splitHoursMinutes(os.arrival)
                 let x = scaleX(new Date(2000, 0, 1, +arrival[0], +arrival[1]))
-                let y = scaleY(os.km) + lineStation.offset
+                let y = scaleY(os.km) + parseInt(lineStation.offset)
                 path.lineTo(x, y)
               }
             }
@@ -660,7 +689,7 @@
                 let x = scaleX(
                   new Date(2000, 0, 1, +departure[0], +departure[1])
                 )
-                let y = scaleY(os.km) + lineStation.offset
+                let y = scaleY(os.km) + parseInt(lineStation.offset)
                 path.lineTo(x, y)
               }
             }
@@ -679,4 +708,27 @@
   }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+  .toolbar {
+    font-size: 1rem;
+    box-shadow: 1px 1px 2px black;
+    background-color: rgba(255, 255, 255, 1);
+  }
+  .btn_offsets {
+    padding: 2px 5px;
+    color: white;
+    background-color: rgb(218, 93, 71);
+    border: none;
+    outline: none;
+    &:hover {
+      background-color: rgb(216, 139, 126);
+    }
+  }
+  .hidden {
+    display: none;
+  }
+  .form-group {
+    display: inline-block;
+    margin-right: 2px;
+  }
+</style>

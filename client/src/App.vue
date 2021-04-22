@@ -9,6 +9,7 @@
       >Orer</router-link
     >
   </nav>
+
   <div class="container">
     <div class="router-view">
       <router-view :line-id="$route.params.lineId"></router-view>
@@ -31,7 +32,7 @@
 
 <style lang="scss" scoped>
   .container {
-    margin-top: 50px;
+    margin-top: 10px;
     margin-left: 0px;
     margin-right: 0px;
   }
@@ -40,23 +41,21 @@
   .top-navigation {
     display: flex;
     justify-content: flex-start;
-    font-size: 2rem;
+    font-size: 1.2rem;
+    box-shadow: 0px 2px 5px black;
+    background: rgba(255, 255, 255, 1);
 
     .top-navigation-link {
-      font-size: inherit;
       display: inline-block;
       padding: 10px 15px;
-      margin-left: 10px;
+      border-right: 1px solid white;
       text-align: center;
-      border-left: 1px solid grey;
-      background: white;
-      color: black;
-      box-shadow: 1 1 2px black;
-
-      &:nth-child(1) {
-        margin-left: 0;
-        border-left: none;
-      }
+      background: rgb(218, 93, 71);
+      color: rgb(255, 255, 255);
+    }
+    .router-link-active {
+      color: white;
+      border-right: 1px solid black;
     }
   }
 </style>
@@ -65,18 +64,15 @@
   * {
     margin: 0;
     padding: 0;
-    font-size: 16px;
     font-family: Verdana, sans-serif;
     box-sizing: border-box;
   }
   body {
-    height: 100vw;
     background: url('./bg.png');
   }
   h1 {
     font-size: 1.6rem;
   }
-
   a {
     text-decoration: none;
   }
