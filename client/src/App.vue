@@ -1,6 +1,6 @@
 <template>
   <nav class="top-navigation">
-    <router-link :to="{ name: 'linemap' }" class="top-navigation-link"
+    <router-link :to="{ name: 'linechart' }" class="top-navigation-link"
       >Home</router-link
     >
     <router-link
@@ -44,6 +44,7 @@
     font-size: 1.2rem;
     box-shadow: 0px 2px 5px black;
     background: rgba(255, 255, 255, 1);
+    height: 50px;
 
     .top-navigation-link {
       display: inline-block;

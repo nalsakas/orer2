@@ -2,22 +2,21 @@
   <div class="toolbar">
     <button class="btn_offsets" @click.prevent="offsets">Ofsetler...</button>
   </div>
-  <div v-if="line" ref="offsets" class="offsets hidden">
-    <form action="" @submit.prevent>
+  <div v-if="line" ref="offsets" class="hidden">
+    <form @submit.prevent>
       <div
         v-for="ls in line.lineStations"
         :key="ls.station.id"
         class="form-group"
       >
-        <label>
-          {{ ls.station.name }}
-          <input
-            v-model.number="ls.offset"
-            type="number"
-            min="-999"
-            max="999"
-          />
-        </label>
+        <label :for="ls.stationId"> {{ ls.station.name }} </label>
+        <input
+          :id="ls.stationId"
+          v-model.number.trim="ls.offset"
+          type="number"
+          min="-999"
+          max="999"
+        />
       </div>
     </form>
   </div>
@@ -59,9 +58,9 @@
       }
     },
     async mounted() {
-      //await this.resizeHandler()
       await this.loadData()
-      await this.plot()
+      this.resizeHandler()
+      this.plot()
     },
     methods: {
       resizeHandler() {
@@ -729,6 +728,9 @@
   }
   .form-group {
     display: inline-block;
-    margin-right: 2px;
+    margin-right: 8px;
+    label {
+      margin-right: 4px;
+    }
   }
 </style>
