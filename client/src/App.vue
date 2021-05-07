@@ -31,11 +31,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .container {
-    margin-top: 10px;
-    margin-left: 0px;
-    margin-right: 0px;
-  }
   .router-view {
   }
   .top-navigation {
@@ -43,20 +38,23 @@
     justify-content: flex-start;
     font-size: 1.2rem;
     box-shadow: 0px 2px 5px black;
-    background: rgba(255, 255, 255, 1);
+    background: #252423;
     height: 50px;
 
-    .top-navigation-link {
+    ::v-deep(.top-navigation-link) {
       display: inline-block;
       padding: 10px 15px;
       border-right: 1px solid white;
       text-align: center;
-      background: rgb(218, 93, 71);
-      color: rgb(255, 255, 255);
+      background: #c73a3a;
+      color: #f6f4f2;
+      &:hover {
+        background: #ff6b6b;
+      }
     }
-    .router-link-active {
-      color: white;
-      border-right: 1px solid black;
+    ::v-deep(.router-link-active) {
+      background: #c73a3a;
+      border-bottom: #252423 2px solid;
     }
   }
 </style>

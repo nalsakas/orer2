@@ -18,7 +18,8 @@ module.exports = {
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    assetModuleFilename: '[name][ext]'
   },
   module: {
     rules: [
@@ -27,8 +28,12 @@ module.exports = {
         use: { loader: 'vue-loader' }
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(png|jpg|jpeg|gif|svg)$/i,
         type: 'asset/resource'
+      },
+      {
+        test: /\.(json)/,
+        type: 'asset/source'
       },
       {
         test: /\.(s)?css$/i,

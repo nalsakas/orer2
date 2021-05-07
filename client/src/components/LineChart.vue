@@ -4,6 +4,11 @@
 <script>
   import * as d3 from 'd3'
   import * as topojson from 'topojson-client'
+  import anime from 'animejs/lib/anime.es.js'
+
+  let world = require('../50m.json')
+  world = JSON.parse(world)
+
   export default {
     name: 'LineChart',
     mounted() {
@@ -12,37 +17,113 @@
     methods: {
       plot() {
         const svg = d3.select(this.$refs.svg)
+        const styleObj = window.getComputedStyle(svg.node())
 
-        d3.json('https://unpkg.com/world-atlas@1/world/50m.json').then(
-          function (world) {
-            const scale = 600
-            const width = window.innerWidth
-            const height = window.innerHeight
+        window.setTimeout(() => {
+          const width = Math.round(
+            styleObj.getPropertyValue('width').replace('px', '')
+          )
+          const height = Math.round(
+            styleObj.getPropertyValue('height').replace('px', '')
+          )
 
-            const projection = d3
-              .geoMercator()
-              .scale(scale)
-              .translate([width / 2, height / 2])
+          const projection = d3
+            .geoOrthographic()
+            .translate([width / 2, height / 2])
 
-            const pathGen = d3.geoPath().projection(projection)
+          const path = d3.geoPath().projection(projection)
 
-            svg.attr('width', width)
-            svg.attr('height', height)
+          const countries = topojson.feature(world, world.objects.countries)
+            .features
 
-            svg
-              .selectAll('path')
-              .data(
-                /**
-                 * Turkey: id = 792
-                 */
-                topojson.feature(world, world.objects.countries).features //.filter((country) => country.id == 792)
-              )
-              .enter()
-              .append('path')
-              .attr('d', pathGen)
-              .on('click', (e, d) => console.log(d.id))
+          svg
+            .append('path')
+            .attr('d', path({ type: 'Sphere' }))
+            .attr('class', 'sphere')
+
+          svg
+            .selectAll('path.country')
+            .data(countries)
+            .enter()
+            .append('path')
+            .attr('d', path)
+            .attr('class', 'country')
+
+          let dragX, dragY
+
+          d3.selectAll('path')
+            .call(
+              d3
+                .drag()
+                .on('start', function dragged(event) {
+                  dragX = event.x
+                  dragY = event.y
+                })
+                .on('drag', function dragged(event) {
+                  const dx = event.x - dragX
+                  const dy = event.y - dragY
+                  projection.rotate([
+                    projection.rotate()[0] + event.dx / 10,
+                    projection.rotate()[1] - event.dy / 10
+                  ])
+                  svg
+                    .selectAll('path.sphere')
+                    .attr('d', path({ type: 'Sphere' }))
+                  svg.selectAll('path.country').attr('d', path)
+                })
+            )
+            .call(
+              d3.zoom().on('zoom', function (event) {
+                console.log(
+                  Math.max(400, projection.scale() - event.sourceEvent.deltaY)
+                )
+                projection.scale(
+                  Math.max(400, projection.scale() - event.sourceEvent.deltaY)
+                )
+                svg.selectAll('path.sphere').attr('d', path({ type: 'Sphere' }))
+                svg.selectAll('path.country').attr('d', path)
+              })
+            )
+
+          const props = {
+            rotationX: 0,
+            rotationY: 0,
+            scale: 400
           }
-        )
+
+          anime({
+            targets: props,
+            easing: 'linear',
+            round: 1,
+            duration: 2000,
+            delay: 1000,
+            rotationX: -360 - 36,
+            rotationY: -39,
+            begin: function () {
+              projection.scale(props.scale)
+            },
+            update: function () {
+              projection.rotate([props.rotationX, props.rotationY])
+              svg.selectAll('path.sphere').attr('d', path({ type: 'Sphere' }))
+              svg.selectAll('path.country').attr('d', path)
+            }
+          }).finished.then(() => {
+            anime({
+              targets: props,
+              easing: 'linear',
+              round: 1,
+              duration: 2000,
+              delay: 100,
+              scale: 4600,
+              begin: function () {},
+              update: function () {
+                projection.scale(props.scale)
+                svg.selectAll('path.sphere').attr('d', path({ type: 'Sphere' }))
+                svg.selectAll('path.country').attr('d', path)
+              }
+            })
+          })
+        }, 0)
       }
     }
   }
@@ -50,10 +131,17 @@
 
 <style lang="scss" scoped>
   svg {
-    &::v-deep(path) {
-      fill: lightgreen;
+    display: block;
+    width: 100%;
+    height: calc(100vh - 50px);
+
+    ::v-deep(.sphere) {
+      fill: rgb(27, 117, 221);
+    }
+    ::v-deep(.country) {
+      fill: rgb(204, 179, 124);
       stroke: black;
-      stroke-width: 0.01;
+      stroke-width: 0.1;
     }
   }
 </style>
