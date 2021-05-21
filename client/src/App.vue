@@ -37,14 +37,13 @@
     display: flex;
     justify-content: flex-start;
     font-size: 1.2rem;
-    box-shadow: 0px 2px 5px black;
     background: #252423;
     height: 50px;
 
     ::v-deep(.top-navigation-link) {
       display: inline-block;
       padding: 10px 15px;
-      border-right: 1px solid white;
+      margin-right: 2px;
       text-align: center;
       background: #c73a3a;
       color: #f6f4f2;
@@ -52,9 +51,14 @@
         background: #ff6b6b;
       }
     }
-    ::v-deep(.router-link-active) {
-      background: #c73a3a;
-      border-bottom: #252423 2px solid;
+    ::v-deep(.router-link-active .top-navigation-link::after) {
+      content: '';
+      display: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #c73a3a;
     }
   }
 </style>
