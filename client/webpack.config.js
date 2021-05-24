@@ -19,8 +19,10 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
-    assetModuleFilename: '[name][ext]'
+    assetModuleFilename: '[name][ext]',
+    clean: true
   },
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {
@@ -64,8 +66,9 @@ module.exports = {
     new MiniCssExtractPlugin(),
     new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
-      title: 'ORER2',
-      template: './src/index.html'
+      title: 'ORER',
+      template: './src/index.html',
+      inject: 'body'
     }),
     new webpack.DefinePlugin({
       __VUE_OPTIONS_API__: true,

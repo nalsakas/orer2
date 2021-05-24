@@ -21,6 +21,7 @@
     "d3": "^6.6.1",
     "topojson-client": "^3.1.0",
     "underscore": "^1.13.0",
+    "versor": "^0.1.2",
     "vue": "^3.0.7",
     "vue-router": "^4.0.6"
   },
